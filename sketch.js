@@ -1,79 +1,112 @@
-var Engine = Matter.Engine,
-  World = Matter.World,
-  Events = Matter.Events,
-  Bodies = Matter.Bodies;
- 
-var particles = [];
-var plinkos = [];
+const Engine = Matter.Engine;
+const World = Matter.World;
+const Bodies = Matter.Bodies;
 
-var divisionHeight=300;
-var score =0;
+var particle;
+var plinkos = [];
+var divisions = [];
+
+var divisionHeight = 300;
+var score = 0;
+
+var gameState = 'start';
+var turn = 0;
+
+var scoreArray = [500, 100, 200];
+var scoreCorX = 100;
+var incrementArray = [4, 3, 3];
+
+var startXLimit = [0, 321, 561];
+var endXLimit = [320, 560, 800];
+
 function setup() {
   createCanvas(800, 800);
   engine = Engine.create();
   world = engine.world;
-  ground = new Ground(width/2,height,width,20);
 
+  ground = new Ground(width / 2, height, width, 20);
 
-   for (var k = 0; k <=width; k = k + 80) {
-     divisions.push(new Divisions(k, height-divisionHeight/2, 10, divisionHeight));
-   }
+  for (var k = 0; k <= width; k = k + 80) {
+    divisions.push(new Divisions(k, height - divisionHeight / 2, 10, divisionHeight));
+  }
 
+  for (var j = 75; j <= width; j = j + 50) {
 
-    for (var j = 75; j <=width; j=j+50) 
-    {
-    
-       plinkos.push(new Plinko(j,75));
-    }
+    plinkos.push(new Plinko(j, 75));
+  }
 
-    for (var j = 50; j <=width-10; j=j+50) 
-    {
-    
-       plinkos.push(new Plinko(j,175));
-    }
+  for (var j = 50; j <= width - 10; j = j + 50) {
 
-     for (var j = 75; j <=width; j=j+50) 
-    {
-    
-       plinkos.push(new Plinko(j,275));
-    }
+    plinkos.push(new Plinko(j, 175));
+  }
 
-     for (var j = 50; j <=width-10; j=j+50) 
-    {
-    
-       plinkos.push(new Plinko(j,375));
-    }
+  for (var j = 75; j <= width; j = j + 50) {
 
-    
+    plinkos.push(new Plinko(j, 275));
+  }
 
-    
+  for (var j = 50; j <= width - 10; j = j + 50) {
+
+    plinkos.push(new Plinko(j, 375));
+  }
 }
- 
-
 
 function draw() {
   background("black");
   textSize(20)
- //text("Score : "+score,20,30);
+  text("Score : " + score, 20, 30);
   Engine.update(engine);
- 
-  
-   for (var i = 0; i < plinkos.length; i++) {
-     
-     plinkos[i].display();
-     
-   }
-   if(frameCount%60===0){
-     particles.push(new particle(random(width/2-30, width/2+30), 10,10));
-     score++;
-   }
- 
-  for (var j = 0; j < particles.length; j++) {
-   
-     particles[j].display();
-   }
-   for (var k = 0; k < divisions.length; k++) {
-     
-     divisions[k].display();
-   }
+  scoreCorX = 30;
+  for (var i = 0; i < scoreArray.length; i++) {
+    for (var row = 0; row < incrementArray[i]; row++) {
+      fill('white');
+      text(scoreArray[i], scoreCorX, 600);
+      scoreCorX += 80;
+    }
+  }
+
+  for (var i = 0; i < plinkos.length; i++) {
+    plinkos[i].display();
+  }
+
+  for (var k = 0; k < divisions.length; k++) {
+
+    divisions[k].display();
+  }
+
+  if (particle) {
+    particle.display();
+
+    var pos = particle.body.position;
+
+    if (pos.y > 500) {
+      for (var i = 0; i < startXLimit.length; i++) {
+        if (pos.x > startXLimit[i] && pos.x < endXLimit[i]) {
+          score += scoreArray[i];
+          particle = null;
+        }
+      }
+      turn++;
+      gameState = 'start';
+    }
+  }
+
+  if (turn >= 5) {
+    gameState = 'end';
+  }
+
+  if (gameState == 'end') {
+    push();
+    textSize(70);
+    fill('yellow');
+    text('GAME OVER', 150, 300);
+    pop();
+  }
+}
+
+function mousePressed() {
+  if (gameState == 'start') {
+    particle = new Particle(mouseX, 0, 10, 10);
+    gameState = 'particleFalling';
+  }
 }

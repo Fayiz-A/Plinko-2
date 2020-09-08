@@ -12,7 +12,7 @@ var score = 0;
 var gameState = 'start';
 var turn = 0;
 
-var scoreArray = [500, 100, 200];
+var scoreArray = [];
 var scoreCorX = 100;
 var incrementArray = [4, 3, 3];
 
@@ -21,6 +21,16 @@ var endXLimit = [320, 560, 800];
 
 function setup() {
   createCanvas(800, 800);
+
+  for(var i = 0; i < 3; i++) {
+    var score = 0;
+    var testExpression = Math.round(random(1, 19));
+    for(var j = 0; j < testExpression; j++) {
+      score += 50;
+    }
+    scoreArray.push(score);
+  }
+  
   engine = Engine.create();
   world = engine.world;
 
